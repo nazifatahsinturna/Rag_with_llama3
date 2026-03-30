@@ -24,7 +24,15 @@ question = input("Ask a question about your document: ");
 #getting the relevent chunks
 docs = retriver.invoke(question)
 
-context = "\n\n".join([doc.page_content for doc in docs])
+#context = "\n\n".join([doc.page_content for doc in docs])
+seen = set()
+unique_context = []
+for doc in docs:
+    if doc.page_content not in seen:
+        unique_context.append(doc.page_content)
+        seen.add(doc.page_content)
+
+context = "\n\n".join(unique_context)
 
 #sending to the llm
 
