@@ -1,0 +1,18 @@
+#virtual environment
+llmvenv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+#the vector db
+chroma_db/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+#PDFs
+*.pdf
+#i don't want it 
+test.py

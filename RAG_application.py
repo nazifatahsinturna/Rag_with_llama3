@@ -1,0 +1,41 @@
+from langchain_ollama import OllamaEmbeddings
+from langchain_chroma import Chroma
+from langchain_ollama import OllamaLLM
+
+#using ollama embeddings
+embedding_model = OllamaEmbeddings(
+    model="nomic-embed-text" #llama3 is not ideal for embeddings
+)
+
+#loading the vector database
+vector_db = Chroma(
+    persist_directory="chroma_db",
+    embedding_function=embedding_model
+)
+
+#retriver creation
+retriver = vector_db.as_retriever(search_kwargs={'k': 3})
+
+#loaading the llm model
+llm = OllamaLLM(model="llama3")
+
+question = input("Ask a question about your document: ");
+
+#getting the relevent chunks
+docs = retriver.invoke(question)
+
+context = "\n\n".join([doc.page_content for doc in docs])
+
+#sending to the llm
+
+prompt = f"""
+Use the following context to answer the question.
+Context:{context}
+Question: {question}
+"""
+
+response = llm.invoke(prompt)
+
+#printing the answer
+print("\n==========Answer==========\n")
+print(response)
