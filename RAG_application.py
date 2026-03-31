@@ -19,31 +19,33 @@ retriver = vector_db.as_retriever(search_kwargs={'k': 3})
 #loaading the llm model
 llm = OllamaLLM(model="llama3")
 
-question = input("Ask a question about your document: ");
+while True:
+    question = input("Ask a question about your document or bye to exit: ");
+    if question.lower() == 'bye':
+        break
+    #getting the relevent chunks
+    docs = retriver.invoke(question)
 
-#getting the relevent chunks
-docs = retriver.invoke(question)
+    #context = "\n\n".join([doc.page_content for doc in docs])
+    seen = set()
+    unique_context = []
+    for doc in docs:
+        if doc.page_content not in seen:
+            unique_context.append(doc.page_content)
+            seen.add(doc.page_content)
 
-#context = "\n\n".join([doc.page_content for doc in docs])
-seen = set()
-unique_context = []
-for doc in docs:
-    if doc.page_content not in seen:
-        unique_context.append(doc.page_content)
-        seen.add(doc.page_content)
+    context = "\n\n".join(unique_context)
 
-context = "\n\n".join(unique_context)
+    #sending to the llm
 
-#sending to the llm
+    prompt = f"""
+    Use the following context to answer the question.
+    Context:{context}
+    Question: {question}
+    """
 
-prompt = f"""
-Use the following context to answer the question.
-Context:{context}
-Question: {question}
-"""
+    response = llm.invoke(prompt)
 
-response = llm.invoke(prompt)
-
-#printing the answer
-print("\n==========Answer==========\n")
-print(response)
+    #printing the answer
+    print("\n==========Answer==========\n")
+    print(response)
